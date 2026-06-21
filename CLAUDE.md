@@ -116,8 +116,12 @@ balancer, no database. See `terraform/` for the full picture.
   A/AAAA to the old site) **predate this project**. We use a new bucket name and
   do not touch the legacy bucket. Pointing `oldams.nl` at the new CloudFront is a
   **DNS cutover** — confirm with the user before `terraform apply` of the records.
-- CI authenticates with **GitHub OIDC** assuming a scoped deploy role. The role
-  ARN is a GitHub secret (`AWS_DEPLOY_ROLE_ARN`), not committed.
+- CI (`.github/workflows/deploy.yml`, on push to `main`) builds the static
+  export and publishes it: `aws s3 sync out/` then a CloudFront invalidation. It
+  authenticates with **GitHub OIDC** assuming the scoped `oldams-deploy` role —
+  no stored keys. Required repo settings (set from `terraform output`, none
+  committed): secret `AWS_DEPLOY_ROLE_ARN`, variables `SITE_BUCKET` and
+  `CLOUDFRONT_DISTRIBUTION_ID`.
 
 Day-to-day AWS/Terraform uses the `terraform` profile from `.aws/config`
 (gitignored). Example:
