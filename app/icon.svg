@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="oldams — Amsterdam">
+  <!-- Flag of Amsterdam: red field, black band, three Saint Andrew's crosses (XXX).
+       The historical oldams favicon, redrawn as a crisp vector. -->
+  <rect width="32" height="32" fill="#EC0000"/>
+  <rect y="10.5" width="32" height="11" fill="#1A1A1A"/>
+  <g stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round">
+    <path d="M4.8 12.8 11.2 19.2 M11.2 12.8 4.8 19.2"/>
+    <path d="M12.8 12.8 19.2 19.2 M19.2 12.8 12.8 19.2"/>
+    <path d="M20.8 12.8 27.2 19.2 M27.2 12.8 20.8 19.2"/>
+  </g>
+</svg>
