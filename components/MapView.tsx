@@ -5,6 +5,7 @@ import maplibregl from "maplibre-gl";
 import type { Pin } from "@/lib/types";
 import { loadPins, pinInRange } from "@/lib/data";
 import { ARCHIVE_HOME } from "@/lib/images";
+import { readUrlState, writeUrlState, round } from "@/lib/urlState";
 import TimeSlider from "./TimeSlider";
 import PlacePanel from "./PlacePanel";
 
@@ -36,11 +37,15 @@ export default function MapView() {
   const mapRef = useRef<maplibregl.Map | null>(null);
   const hoverPopup = useRef<maplibregl.Popup | null>(null);
   const rafRef = useRef<number | null>(null);
+  const restoredView = useRef(false);
+
+  // Deep-link state read once from the URL (place / year range / map view).
+  const initial = useMemo(() => readUrlState(), []);
 
   const [pins, setPins] = useState<Pin[]>([]);
   const [bounds, setBounds] = useState<{ min: number; max: number } | null>(null);
   const [range, setRange] = useState<[number, number] | null>(null);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(initial.place ?? null);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,10 +55,15 @@ export default function MapView() {
       .then(({ pins, minYear, maxYear }) => {
         setPins(pins);
         setBounds({ min: minYear, max: maxYear });
-        setRange([minYear, maxYear]);
+        // Honor a shared year range, clamped to the data bounds.
+        const f = initial.from ?? minYear;
+        const t = initial.to ?? maxYear;
+        const lo = Math.max(minYear, Math.min(f, t));
+        const hi = Math.min(maxYear, Math.max(f, t));
+        setRange([lo, hi]);
       })
       .catch((e) => setError(String(e)));
-  }, []);
+  }, [initial]);
 
   // --- Init the map once -------------------------------------------------
   useEffect(() => {
@@ -62,13 +72,22 @@ export default function MapView() {
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: BASEMAP,
-      center: AMS_CENTER,
-      zoom: 12.4,
+      center:
+        initial.lng != null && initial.lat != null
+          ? [initial.lng, initial.lat]
+          : AMS_CENTER,
+      zoom: initial.z ?? 12.4,
       minZoom: 9,
       maxZoom: 18,
       attributionControl: false,
     });
     mapRef.current = map;
+
+    // Keep the map position in the URL so a copied link restores the same view.
+    map.on("moveend", () => {
+      const c = map.getCenter();
+      writeUrlState({ z: round(map.getZoom(), 2), lat: round(c.lat, 5), lng: round(c.lng, 5) });
+    });
 
     map.addControl(
       new maplibregl.AttributionControl({ compact: true }),
@@ -205,7 +224,7 @@ export default function MapView() {
       map.remove();
       mapRef.current = null;
     };
-  }, []);
+  }, [initial]);
 
   // --- Push filtered data to the map when pins/range/ready change --------
   useEffect(() => {
@@ -218,6 +237,32 @@ export default function MapView() {
       src?.setData(buildFC(pins, range[0], range[1]));
     });
   }, [pins, range, ready]);
+
+  // --- Keep shareable state in the URL ----------------------------------
+  // Year range (omit when it's the full span, to keep links clean).
+  useEffect(() => {
+    if (!range || !bounds) return;
+    const full = range[0] === bounds.min && range[1] === bounds.max;
+    writeUrlState({ from: full ? null : range[0], to: full ? null : range[1] });
+  }, [range, bounds]);
+
+  // Open place.
+  useEffect(() => {
+    writeUrlState({ place: selectedId });
+  }, [selectedId]);
+
+  // On first load from a shared place link with no explicit map view, fly to it.
+  useEffect(() => {
+    if (restoredView.current) return;
+    if (!ready || pins.length === 0 || initial.place == null) return;
+    restoredView.current = true;
+    if (initial.lat == null || initial.lng == null) {
+      const pin = pins.find((p) => p.id === initial.place);
+      const map = mapRef.current;
+      if (pin && map)
+        map.flyTo({ center: [pin.lng, pin.lat], zoom: Math.max(map.getZoom(), 16) });
+    }
+  }, [ready, pins, initial]);
 
   const visibleCount = useMemo(() => {
     if (!range) return 0;

@@ -361,6 +361,9 @@ a {
   /* Responsive gallery: columns scale with the (now wider) panel, so a place
      with many photos reads as a grid, not a cramped tall 2-wide strip. */
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  /* Pack rows to the top: the grid fills the tall panel, and the default
+     align-content (stretch) otherwise inflates the gap between a few rows. */
+  align-content: start;
   gap: 10px;
   padding: 16px 18px 28px;
 }
