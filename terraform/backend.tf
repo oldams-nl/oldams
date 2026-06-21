@@ -20,12 +20,12 @@ terraform {
   #   2. UNCOMMENT the block below, then migrate:
   #        terraform init -migrate-state
   #
-  # backend "s3" {
-  #   bucket         = "oldams-terraform-state"
-  #   key            = "state/terraform.tfstate"
-  #   region         = "us-east-1"
-  #   encrypt        = true
-  #   kms_key_id     = "alias/oldams-terraform-state-key"
-  #   dynamodb_table = "oldams-terraform-lock"
-  # }
+  backend "s3" {
+    bucket         = "oldams-terraform-state"
+    key            = "state/terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true
+    kms_key_id     = "alias/oldams-terraform-state-key"
+    dynamodb_table = "oldams-terraform-lock"
+  }
 }

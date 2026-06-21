@@ -178,9 +178,10 @@ resource "aws_s3_bucket_policy" "site" {
 # NOTE: oldams.nl currently has plain A/AAAA records pointing at the legacy site.
 # Applying these aliases is the DNS cutover to the new CloudFront distribution.
 resource "aws_route53_record" "apex_a" {
-  zone_id = data.aws_route53_zone.root.zone_id
-  name    = local.apex
-  type    = "A"
+  zone_id         = data.aws_route53_zone.root.zone_id
+  name            = local.apex
+  type            = "A"
+  allow_overwrite = true # replace the legacy apex A record on cutover
   alias {
     name                   = aws_cloudfront_distribution.site.domain_name
     zone_id                = aws_cloudfront_distribution.site.hosted_zone_id
@@ -189,9 +190,10 @@ resource "aws_route53_record" "apex_a" {
 }
 
 resource "aws_route53_record" "apex_aaaa" {
-  zone_id = data.aws_route53_zone.root.zone_id
-  name    = local.apex
-  type    = "AAAA"
+  zone_id         = data.aws_route53_zone.root.zone_id
+  name            = local.apex
+  type            = "AAAA"
+  allow_overwrite = true # replace the legacy apex AAAA record on cutover
   alias {
     name                   = aws_cloudfront_distribution.site.domain_name
     zone_id                = aws_cloudfront_distribution.site.hosted_zone_id
@@ -200,9 +202,10 @@ resource "aws_route53_record" "apex_aaaa" {
 }
 
 resource "aws_route53_record" "www_a" {
-  zone_id = data.aws_route53_zone.root.zone_id
-  name    = local.www
-  type    = "A"
+  zone_id         = data.aws_route53_zone.root.zone_id
+  name            = local.www
+  type            = "A"
+  allow_overwrite = true # legacy www was a CNAME (deleted on cutover)
   alias {
     name                   = aws_cloudfront_distribution.site.domain_name
     zone_id                = aws_cloudfront_distribution.site.hosted_zone_id
@@ -211,9 +214,10 @@ resource "aws_route53_record" "www_a" {
 }
 
 resource "aws_route53_record" "www_aaaa" {
-  zone_id = data.aws_route53_zone.root.zone_id
-  name    = local.www
-  type    = "AAAA"
+  zone_id         = data.aws_route53_zone.root.zone_id
+  name            = local.www
+  type            = "AAAA"
+  allow_overwrite = true # legacy www was a CNAME (deleted on cutover)
   alias {
     name                   = aws_cloudfront_distribution.site.domain_name
     zone_id                = aws_cloudfront_distribution.site.hosted_zone_id
