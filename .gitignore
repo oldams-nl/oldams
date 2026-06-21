@@ -1,0 +1,36 @@
+# --- Secrets / local AWS identity (never commit) ---
+.aws
+.env
+.env.*
+!.env.example
+
+# --- Node / Next.js ---
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# --- Generated static data (rebuilt from data/*.ndjson at build time) ---
+public/data/
+
+# --- Terraform ---
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# --- Misc ---
+.DS_Store
+*.log
+.vscode/
+.idea/
