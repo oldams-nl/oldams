@@ -19,7 +19,7 @@ variable "site_bucket_name" {
 variable "github_repo" {
   description = "owner/name of the GitHub repo allowed to deploy via OIDC (main branch only)."
   type        = string
-  default     = "viatsko/oldams"
+  default     = "oldams-nl/oldams"
 }
 
 variable "state_bucket_name" {
