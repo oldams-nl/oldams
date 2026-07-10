@@ -361,6 +361,12 @@ a {
   /* Responsive gallery: columns scale with the (now wider) panel, so a place
      with many photos reads as a grid, not a cramped tall 2-wide strip. */
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  /* Rows must size to the square .thumb tiles (aspect-ratio: 1/1). The default
+     `auto` track sizing under-computes this when columns are `fr`-based and the
+     container has a definite scrollable height (a Grid auto-track-sizing
+     quirk) — rows end up far shorter than the tiles, so each row of photos
+     gets painted over by the next. `max-content` sizes rows correctly. */
+  grid-auto-rows: max-content;
   /* Pack rows to the top: the grid fills the tall panel, and the default
      align-content (stretch) otherwise inflates the gap between a few rows. */
   align-content: start;
